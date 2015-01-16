@@ -39,7 +39,7 @@ if(argv.q) {
         url: url + '/search',
         json: {terms: argv.s}
     }, function(err, res, body) {
-        if(!err && res.statusCode == 200) {
+        if(!err) {
             var id = 0;
             _.each(body, function(backend, backendName) {
                 console.log(backendName + ':');
