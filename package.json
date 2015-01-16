@@ -1,0 +1,16 @@
+{
+  "name": "partyplay-client",
+  "version": "0.0.1",
+  "description": "simple CLI client for partyplay",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "FruitieX",
+  "license": "MIT",
+  "dependencies": {
+    "request": "^2.51.0",
+    "underscore": "^1.7.0",
+    "yargs": "^1.3.3"
+  }
+}
