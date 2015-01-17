@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var _ = require('underscore');
 var request = require('request');
 var fs = require('fs');
