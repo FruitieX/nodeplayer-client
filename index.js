@@ -55,7 +55,7 @@ if (argv.h) {
             console.log('error: ' + err);
         }
     });
-} else if (argv.a) {
+} else if (!_.isUndefined(argv.a)) {
     if(fs.existsSync(tempResultsPath)) {
         var tempResults = require(tempResultsPath);
 
