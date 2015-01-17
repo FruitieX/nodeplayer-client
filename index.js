@@ -11,8 +11,8 @@ var config = _.defaults(userConfig, defaultConfig);
 
 var usageText = '';
 usageText += 'show and manipulate the partyplay queue.\n\n';
-usageText += 'Commands:\n';
-usageText += '  -q            show queue\n';
+usageText += 'commands:\n';
+usageText += '  -l            show queue (default action)\n';
 usageText += '  -s [QUERY]    perform search matching QUERY\n';
 usageText += '  -a [ID]       append search result ID to the queue';
 usageText += '  -h            show this help and quit';
@@ -83,6 +83,7 @@ if (argv.h) {
     }
 } else {
     request.get(url + '/queue', function(err, res, body) {
+        console.log('Queue:');
         var id = 0;
         _.each(JSON.parse(body), function(song) {
             printSong(song, id);
