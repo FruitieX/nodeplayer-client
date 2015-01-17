@@ -18,6 +18,7 @@ usageText += '  -a [ID]       append search result ID to the queue';
 usageText += '  -h            show this help and quit';
 
 var yargs = require('yargs')
+    .boolean('s');
 var argv = yargs.argv;
 if(argv.h) {
     console.log(usageText);
@@ -32,14 +33,13 @@ var printSong = function(song, id) {
 };
 
 var url = config.hostname + ':' + config.port;
-if(argv.q) {
-    request.get(url + '/queue', function(err, res, body) {
-        console.log(body);
-    });
+
+if (argv.h) {
+    console.log(usageText);
 } else if (argv.s) {
     request.post({
         url: url + '/search',
-        json: {terms: argv.s}
+        json: {terms: argv._.join(' ')}
     }, function(err, res, body) {
         if(!err) {
             var id = 0;
@@ -82,5 +82,7 @@ if(argv.q) {
         console.log('no search results');
     }
 } else {
-    console.log(usageText);
+    request.get(url + '/queue', function(err, res, body) {
+        console.log(body);
+    });
 }
