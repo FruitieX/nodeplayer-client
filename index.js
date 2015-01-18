@@ -3,6 +3,7 @@
 var _ = require('underscore');
 var request = require('request');
 var fs = require('fs');
+var Duration = require('duration');
 
 var mkdirp = require('mkdirp');
 var root = process.env.HOME + '/.partyplay-client';
@@ -20,10 +21,11 @@ usageText += 'show and manipulate the partyplay queue.\n\n';
 usageText += 'commands:\n';
 usageText += '  -l            show queue (default action)\n';
 usageText += '  -s [QUERY]    perform search matching QUERY\n';
-usageText += '  -a [ID]       append search result ID to the queue';
-usageText += '  -p            list playlists';
-usageText += '  -p [ID]       list contents of playlist ID';
-usageText += '  -h            show this help and quit';
+usageText += '  -a [ID]       append search result ID to the queue\n';
+usageText += '  -p            list playlists\n';
+usageText += '  -p [ID]       list contents of playlist ID\n';
+usageText += '  -n            show now playing song\n';
+usageText += '  -h            show this help and quit\n';
 
 var yargs = require('yargs')
     .boolean('s');
@@ -38,6 +40,11 @@ var printSong = function(song, id) {
         process.stdout.write('  ' + id + ': ');
     }
     console.log(song.artist + ' - ' + song.title + ' (' + song.album + ')');
+};
+
+var onexit = function() {
+    process.stdout.write('\x1b[?25h'); // enable cursor
+    process.exit();
 };
 
 var url = config.hostname + ':' + config.port;
@@ -127,6 +134,55 @@ if (argv.h) {
         // store song list
         fs.writeFileSync(tempResultsPath, JSON.stringify(playlist));
     }
+} else if(argv.n) {
+    var socket = require('socket.io-client')(config.hostname + ':' + config.port);
+    var zpad = require('zpad');
+    var npInterval = null;
+
+    socket.on('playback', function(playbackInfo) {
+        var playbackInfoTime = new Date().getTime();
+        if(npInterval)
+            clearInterval(npInterval);
+
+        process.stdin.setRawMode(true); // hide input
+        process.on('SIGINT', onexit);
+        // q or ctrl-c pressed: run onexit
+        process.stdin.on('data', function(key) {
+            if(key == 'q' || key == '\u0003') onexit();
+        });
+        process.stdout.write('\u001B[2J\u001B[0;0f'); // clear terminal
+        request.get(url + '/queue', function(err, res, queue) {
+            queue = JSON.parse(queue);
+            var nowPlaying = queue.shift();
+            queue.reverse();
+
+            _.each(queue, function(song) {
+                printSong(song);
+            });
+            console.log('--- Queue ---\n');
+
+            process.stdout.write('Now playing: ');
+            printSong(nowPlaying);
+
+            var printSongTime = function() {
+                var curTime = new Date().getTime();
+                var position = new Duration(new Date(playbackInfoTime), new Date(curTime + (playbackInfo.position || 0)));
+                var duration = new Duration(new Date(curTime), new Date(curTime + parseInt(playbackInfo.duration)));
+                process.stdout.write('\r');
+                process.stdout.write('\033[2K');
+
+                process.stdout.write('[');
+                process.stdout.write(String(position.minutes) + ':' + zpad(position.seconds % 60, 2));
+                process.stdout.write('/');
+                process.stdout.write(String(duration.minutes) + ':' + zpad(duration.seconds % 60, 2));
+                process.stdout.write(']');
+            };
+            npInterval = setInterval(function() {
+                printSongTime();
+            }, 1000);
+            printSongTime();
+        });
+    });
 } else {
     request.get(url + '/queue', function(err, res, body) {
         console.log('Queue:');
