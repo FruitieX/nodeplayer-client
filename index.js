@@ -145,6 +145,7 @@ if (argv.h) {
             clearInterval(npInterval);
 
         process.stdin.setRawMode(true); // hide input
+        process.stdout.write('\x1b[?25l'); // hide cursor
         process.on('SIGINT', onexit);
         // q or ctrl-c pressed: run onexit
         process.stdin.on('data', function(key) {
