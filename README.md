@@ -10,7 +10,7 @@ usage
 
 ### Adding to queue
 
-1. Run a command that produces a song list (e.g. `search, -s` or `list playlist, -p`)
+1. Run a command that produces a song list (e.g. search, `-s` or list playlist, `-p`)
 2. Add song to queue from list by id (e.g. `-a 42`)
 
 playlists
