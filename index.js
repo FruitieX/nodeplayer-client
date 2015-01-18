@@ -156,8 +156,10 @@ if (argv.h) {
             var nowPlaying = queue.shift();
             queue.reverse();
 
+            var id = queue.length; // note we already shifted nowPlaying out
             _.each(queue, function(song) {
-                printSong(song);
+                printSong(song, id);
+                id--;
             });
             console.log('--- Queue ---\n');
 
