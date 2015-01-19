@@ -138,53 +138,58 @@ if (argv.h) {
     var socket = require('socket.io-client')(config.hostname + ':' + config.port);
     var zpad = require('zpad');
     var npInterval = null;
+    var playbackInfo = {};
+    var playbackInfoTime = 0;
 
-    socket.on('playback', function(playbackInfo) {
-        var playbackInfoTime = new Date().getTime();
+    process.stdin.setRawMode(true); // hide input
+    process.stdout.write('\x1b[?25l'); // hide cursor
+    process.on('SIGINT', onexit);
+    // q or ctrl-c pressed: run onexit
+    process.stdin.on('data', function(key) {
+        if(key == 'q' || key == '\u0003') onexit();
+    });
+
+    var printSongTime = function() {
+        var curTime = new Date().getTime();
+        var position = new Duration(new Date(playbackInfoTime), new Date(curTime + (playbackInfo.position || 0)));
+        var duration = new Duration(new Date(curTime), new Date(curTime + parseInt(playbackInfo.duration)));
+        process.stdout.write('\r');
+        process.stdout.write('\033[2K');
+
+        process.stdout.write('[');
+        process.stdout.write(String(position.minutes) + ':' + zpad(position.seconds % 60, 2));
+        process.stdout.write('/');
+        process.stdout.write(String(duration.minutes) + ':' + zpad(duration.seconds % 60, 2));
+        process.stdout.write(']');
+    };
+
+    socket.on('playback', function(newPlaybackInfo) {
+        playbackInfo = newPlaybackInfo;
+        playbackInfoTime = new Date().getTime();
+    });
+    socket.on('queue', function(queue) {
         if(npInterval)
             clearInterval(npInterval);
 
-        process.stdin.setRawMode(true); // hide input
-        process.stdout.write('\x1b[?25l'); // hide cursor
-        process.on('SIGINT', onexit);
-        // q or ctrl-c pressed: run onexit
-        process.stdin.on('data', function(key) {
-            if(key == 'q' || key == '\u0003') onexit();
-        });
+        var nowPlaying = queue[0];
+        queue = queue[1];
+        queue.reverse();
+
         process.stdout.write('\u001B[2J\u001B[0;0f'); // clear terminal
-        request.get(url + '/queue', function(err, res, queue) {
-            queue = JSON.parse(queue);
-            var nowPlaying = queue.shift();
-            queue.reverse();
-
-            var id = queue.length; // note we already shifted nowPlaying out
-            _.each(queue, function(song) {
-                printSong(song, id);
-                id--;
-            });
-            console.log('--- Queue ---\n');
-
-            process.stdout.write('Now playing: ');
-            printSong(nowPlaying);
-
-            var printSongTime = function() {
-                var curTime = new Date().getTime();
-                var position = new Duration(new Date(playbackInfoTime), new Date(curTime + (playbackInfo.position || 0)));
-                var duration = new Duration(new Date(curTime), new Date(curTime + parseInt(playbackInfo.duration)));
-                process.stdout.write('\r');
-                process.stdout.write('\033[2K');
-
-                process.stdout.write('[');
-                process.stdout.write(String(position.minutes) + ':' + zpad(position.seconds % 60, 2));
-                process.stdout.write('/');
-                process.stdout.write(String(duration.minutes) + ':' + zpad(duration.seconds % 60, 2));
-                process.stdout.write(']');
-            };
-            npInterval = setInterval(function() {
-                printSongTime();
-            }, 1000);
-            printSongTime();
+        var id = queue.length; // note we already shifted nowPlaying out
+        _.each(queue, function(song) {
+            printSong(song, id);
+            id--;
         });
+        console.log('--- Queue ---\n');
+
+        process.stdout.write('Now playing: ');
+        printSong(nowPlaying);
+
+        npInterval = setInterval(function() {
+            printSongTime();
+        }, 1000);
+        printSongTime();
     });
 } else {
     request.get(url + '/queue', function(err, res, body) {
