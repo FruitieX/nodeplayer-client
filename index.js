@@ -198,10 +198,12 @@ if (argv.h) {
 } else {
     request.get(url + '/queue', function(err, res, body) {
         console.log('Queue:');
-        var id = 0;
-        _.each(JSON.parse(body), function(song) {
-            printSong(song, id);
-            id++;
-        });
+        if(body) {
+            var id = 0;
+            _.each(JSON.parse(body), function(song) {
+                printSong(song, id);
+                id++;
+            });
+        }
     });
 }
