@@ -157,7 +157,10 @@ if (argv.h) {
         process.stdout.write('\033[2K');
 
         process.stdout.write('[');
-        process.stdout.write(String(position.minutes) + ':' + zpad(position.seconds % 60, 2));
+        if(playbackInfoTime)
+            process.stdout.write(String(position.minutes) + ':' + zpad(position.seconds % 60, 2));
+        else
+            process.stdout.write('0:00');
         process.stdout.write('/');
         process.stdout.write(String(duration.minutes) + ':' + zpad(duration.seconds % 60, 2));
         process.stdout.write(']');
@@ -184,7 +187,8 @@ if (argv.h) {
         console.log('--- Queue ---\n');
 
         process.stdout.write('Now playing: ');
-        printSong(nowPlaying);
+        if(nowPlaying)
+            printSong(nowPlaying);
 
         npInterval = setInterval(function() {
             printSongTime();
