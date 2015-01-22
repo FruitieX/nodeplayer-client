@@ -190,9 +190,11 @@ if (argv.h) {
         if(nowPlaying)
             printSong(nowPlaying);
 
-        npInterval = setInterval(function() {
-            printSongTime();
-        }, 1000);
+        if(queue.length || nowPlaying) {
+            npInterval = setInterval(function() {
+                printSongTime();
+            }, 1000);
+        }
         printSongTime();
     });
 } else {
