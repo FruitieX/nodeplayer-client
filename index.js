@@ -74,6 +74,20 @@ if (argv.h) {
             console.log('error: ' + err);
         }
     });
+} else if (!_.isUndefined(argv.g)) {
+    // "goto"
+    if(argv.g === true)
+        argv.g = 0;
+
+    request.post({
+        url: url + '/playctl',
+        json: {
+            action: 'skip',
+            cnt: argv.g
+        }
+    }, function(err, res, body) {
+        console.log(body);
+    });
 } else if (!_.isUndefined(argv.a)) {
     if(fs.existsSync(tempResultsPath)) {
         var tempResults = require(tempResultsPath);
