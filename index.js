@@ -203,10 +203,12 @@ if (argv.h) {
     request.get(url + '/queue', function(err, res, body) {
         console.log('Queue:');
         if(body) {
-            var id = 0;
-            _.each(JSON.parse(body), function(song) {
+            var queue = JSON.parse(body);
+            queue.reverse();
+            var id = queue.length - 1;
+            _.each(queue, function(song) {
                 printSong(song, id);
-                id++;
+                id--;
             });
         }
     });
