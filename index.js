@@ -18,14 +18,19 @@ var config = _.defaults(userConfig, defaultConfig);
 
 var usageText = '';
 usageText += 'show and manipulate the partyplay queue.\n\n';
-usageText += 'commands:\n';
+usageText += 'commands\n';
+usageText += '========\n';
+usageText += 'search for songs:\n';
 usageText += '  -l            show queue (default action)\n';
-usageText += '  -s [QUERY]    perform search matching QUERY\n';
-usageText += '  -a [ID]       append search result ID to the queue\n';
 usageText += '  -p            list playlists\n';
 usageText += '  -p [ID]       list contents of playlist ID\n';
-usageText += '  -n            show now playing song\n';
+usageText += '  -s [QUERY]    perform search matching QUERY\n';
+usageText += 'manipulate playback/queue:\n';
+usageText += '  -a [ID]       append search result with ID\n';
+usageText += '  -d [ID]       delete song with ID\n';
 usageText += '  -g [CNT]      skip CNT songs, can be negative to go back\n';
+usageText += 'misc:\n';
+usageText += '  -n            show now playing song\n';
 usageText += '  -h            show this help and quit\n';
 
 var yargs = require('yargs')
