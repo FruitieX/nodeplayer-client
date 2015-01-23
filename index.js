@@ -95,6 +95,9 @@ if (argv.h) {
         console.log(body);
     });
 } else if (!_.isUndefined(argv.d)) {
+    if(argv.d === true)
+        argv.d = 0;
+
     request.del({
         url: url + '/queue/' + argv.d,
     }, function(err, res, body) {
