@@ -150,20 +150,22 @@ if (argv.h) {
     });
 
     var printSongTime = function() {
-        var curTime = new Date().getTime();
-        var position = new Duration(new Date(playbackInfoTime), new Date(curTime + (playbackInfo.position || 0)));
-        var duration = new Duration(new Date(curTime), new Date(curTime + parseInt(playbackInfo.duration)));
         process.stdout.write('\r');
         process.stdout.write('\033[2K');
 
-        process.stdout.write('[');
-        if(playbackInfoTime)
+        if(playbackInfo) {
+            var curTime = new Date().getTime();
+            var position = new Duration(new Date(playbackInfoTime), new Date(curTime + (playbackInfo.position || 0)));
+            var duration = new Duration(new Date(curTime), new Date(curTime + parseInt(playbackInfo.duration)));
+
+            process.stdout.write('[');
             process.stdout.write(String(position.minutes) + ':' + zpad(position.seconds % 60, 2));
-        else
-            process.stdout.write('0:00');
-        process.stdout.write('/');
-        process.stdout.write(String(duration.minutes) + ':' + zpad(duration.seconds % 60, 2));
-        process.stdout.write(']');
+            process.stdout.write('/');
+            process.stdout.write(String(duration.minutes) + ':' + zpad(duration.seconds % 60, 2));
+            process.stdout.write(']');
+        } else {
+            process.stdout.write('[0:00/0:00]');
+        }
     };
 
     socket.on('playback', function(newPlaybackInfo) {
@@ -175,7 +177,7 @@ if (argv.h) {
             clearInterval(npInterval);
 
         var nowPlaying = queue[0];
-        queue = queue[1];
+        queue.shift();
         queue.reverse();
 
         process.stdout.write('\u001B[2J\u001B[0;0f'); // clear terminal
