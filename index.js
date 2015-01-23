@@ -168,7 +168,7 @@ if (argv.h) {
         process.stdout.write('\r');
         process.stdout.write('\033[2K');
 
-        if(playbackInfo) {
+        if(!_.isEmpty(playbackInfo)) {
             var curTime = new Date().getTime();
             var position = new Duration(new Date(playbackInfoTime), new Date(curTime + (playbackInfo.position || 0)));
             var duration = new Duration(new Date(curTime), new Date(curTime + parseInt(playbackInfo.duration)));
