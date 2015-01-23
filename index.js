@@ -89,6 +89,12 @@ if (argv.h) {
     }, function(err, res, body) {
         console.log(body);
     });
+} else if (!_.isUndefined(argv.d)) {
+    request.del({
+        url: url + '/queue/' + argv.d,
+    }, function(err, res, body) {
+        printSong(JSON.parse(body)[0]);
+    });
 } else if (!_.isUndefined(argv.a)) {
     if(fs.existsSync(tempResultsPath)) {
         var tempResults = require(tempResultsPath);
