@@ -25,6 +25,7 @@ usageText += '  -a [ID]       append search result ID to the queue\n';
 usageText += '  -p            list playlists\n';
 usageText += '  -p [ID]       list contents of playlist ID\n';
 usageText += '  -n            show now playing song\n';
+usageText += '  -g [CNT]      skip CNT songs, can be negative to go back\n';
 usageText += '  -h            show this help and quit\n';
 
 var yargs = require('yargs')
