@@ -77,23 +77,33 @@ if (argv.h) {
 } else if (!_.isUndefined(argv.a)) {
     if(fs.existsSync(tempResultsPath)) {
         var tempResults = require(tempResultsPath);
+        var matches = [];
 
         var id = 0;
         _.each(tempResults, function(song) {
-            if(parseInt(argv.a) === id) {
+            if(argv.a === true) {
+                // entire playlist
                 request.post({
                     url: url + '/queue',
                     json: {song: song}
-                }, function(err, res, body) {
-                    if(!err) {
-                        process.stdout.write('song queued: ');
-                        printSong(song);
-                    } else {
-                        console.log('error: ' + err);
-                    }
                 });
+            } else {
+                // by id
+                if(parseInt(argv.a) === id) {
+                    request.post({
+                        url: url + '/queue',
+                        json: {song: song}
+                    }, function(err, res, body) {
+                        if(!err) {
+                            process.stdout.write('song queued: ');
+                            printSong(song);
+                        } else {
+                            console.log('error: ' + err);
+                        }
+                    });
+                }
+                id++;
             }
-            id++;
         });
     } else {
         console.log('no search results');
