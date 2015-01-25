@@ -16,6 +16,13 @@ var userConfig = require(process.env.HOME + '/.partyplayConfig.js');
 var defaultConfig = require(__dirname + '/partyplayConfigDefaults.js');
 var config = _.defaults(userConfig, defaultConfig);
 
+var tlsOpts = {
+    key: config.tlsKey,
+    cert: config.tlsCert,
+    ca: config.tlsCa,
+    rejectUnauthorized: config.rejectUnauthorized
+};
+
 var usageText = '';
 usageText += 'show and manipulate the partyplay queue.\n\n';
 usageText += 'commands\n';
@@ -60,7 +67,8 @@ if (argv.h) {
 } else if (argv.s) {
     request.post({
         url: url + '/search',
-        json: {terms: argv._.join(' ')}
+        json: {terms: argv._.join(' ')},
+        agentOptions: tlsOpts
     }, function(err, res, body) {
         if(!err) {
             var results = [];
@@ -90,7 +98,8 @@ if (argv.h) {
         json: {
             action: 'skip',
             cnt: argv.g
-        }
+        },
+        agentOptions: tlsOpts
     }, function(err, res, body) {
         console.log(body);
     });
@@ -100,6 +109,7 @@ if (argv.h) {
 
     request.del({
         url: url + '/queue/' + argv.d,
+        agentOptions: tlsOpts
     }, function(err, res, body) {
         printSong(JSON.parse(body)[0]);
     });
@@ -114,14 +124,16 @@ if (argv.h) {
                 // entire playlist
                 request.post({
                     url: url + '/queue',
-                    json: {song: song}
+                    json: {song: song},
+                    agentOptions: tlsOpts
                 });
             } else {
                 // by id
                 if(parseInt(argv.a) === id) {
                     request.post({
                         url: url + '/queue',
-                        json: {song: song}
+                        json: {song: song},
+                        agentOptions: tlsOpts
                     }, function(err, res, body) {
                         if(!err) {
                             process.stdout.write('song queued: ');
@@ -174,7 +186,7 @@ if (argv.h) {
         fs.writeFileSync(tempResultsPath, JSON.stringify(playlist));
     }
 } else if(argv.n) {
-    var socket = require('socket.io-client')(config.hostname + ':' + config.port);
+    var socket = require('socket.io-client')(config.hostname + ':' + config.port, tlsOpts);
     var zpad = require('zpad');
     var npInterval = null;
     var playbackInfo = {};
@@ -239,7 +251,14 @@ if (argv.h) {
         printSongTime();
     });
 } else {
-    request.get(url + '/queue', function(err, res, body) {
+    request.get({
+        url: url + '/queue',
+        agentOptions: tlsOpts
+    }, function(err, res, body) {
+        if(err) {
+            console.log(err);
+            return;
+        }
         console.log('Queue:');
         if(body) {
             var queue = JSON.parse(body);
