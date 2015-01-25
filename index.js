@@ -60,6 +60,17 @@ var onexit = function() {
     process.exit();
 };
 
+var parseRange = function(str) {
+    var res = str.match(/(\d*)\.\.(\d*)/);
+    if(!res)
+        return null;
+
+    var range = [];
+
+    range[0] = res[1] || 0;
+    range[1] = res[2] || 9999999999999;
+};
+
 var url = config.hostname + ':' + config.port;
 
 if (argv.h) {
@@ -91,7 +102,7 @@ if (argv.h) {
 } else if (!_.isUndefined(argv.g)) {
     // "goto"
     if(argv.g === true)
-        argv.g = 0;
+        argv.g = 1;
 
     request.post({
         url: url + '/playctl',
@@ -104,11 +115,21 @@ if (argv.h) {
         console.log(body);
     });
 } else if (!_.isUndefined(argv.d)) {
+    var cnt = 1;
+    var start = argv.d;
     if(argv.d === true)
-        argv.d = 0;
+        start = 0;
 
+    var range = parseRange(argv.a);
+    if(range) {
+        start = range[0];
+        cnt = range[1] - range[0] + 1;
+    }
     request.del({
-        url: url + '/queue/' + argv.d,
+        url: url + '/queue/' + start,
+        json: {
+            cnt: cnt
+        },
         agentOptions: tlsOpts
     }, function(err, res, body) {
         printSong(JSON.parse(body)[0]);
@@ -118,32 +139,32 @@ if (argv.h) {
         var tempResults = require(tempResultsPath);
         var matches = [];
 
-        var id = 0;
-        _.each(tempResults, function(song) {
-            if(argv.a === true) {
-                // entire playlist
-                request.post({
-                    url: url + '/queue',
-                    json: {song: song},
-                    agentOptions: tlsOpts
+        var range = parseRange(argv.a);
+        if(argv.a === true) {
+            // entire playlist
+            matches = tempResults;
+        } else if(range) {
+            // x..y range
+            matches = tempResults.filter(function(song, i) {
+                return (i >= range[0] && i <= range[1]);
+            });
+        } else {
+            // by id
+            matches = [tempResults[argv.a]];
+        }
+
+        request.post({
+            url: url + '/queue',
+            json: {songs: matches},
+            agentOptions: tlsOpts
+        }, function(err, res, body) {
+            if(!err) {
+                console.log('songs queued:');
+                _.each(matches, function(song) {
+                    printSong(song);
                 });
             } else {
-                // by id
-                if(parseInt(argv.a) === id) {
-                    request.post({
-                        url: url + '/queue',
-                        json: {song: song},
-                        agentOptions: tlsOpts
-                    }, function(err, res, body) {
-                        if(!err) {
-                            process.stdout.write('song queued: ');
-                            printSong(song);
-                        } else {
-                            console.log('error: ' + err);
-                        }
-                    });
-                }
-                id++;
+                console.log('error: ' + err);
             }
         });
     } else {
