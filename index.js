@@ -38,6 +38,7 @@ usageText += '  -d [ID]       delete song with ID\n';
 usageText += '  -g [CNT]      skip CNT songs, can be negative to go back\n';
 usageText += 'misc:\n';
 usageText += '  -n            show now playing song\n';
+usageText += '  -w [FILENAME] write current playlist into FILENAME\n';
 usageText += '  -h            show this help and quit\n';
 
 var yargs = require('yargs')
@@ -280,6 +281,21 @@ if (argv.h) {
             }, 1000);
         }
         printSongTime();
+    });
+} else if(_.isString(argv.w)) {
+    request.get({
+        url: url + '/queue',
+        agentOptions: tlsOpts
+    }, function(err, res, body) {
+        if(err) {
+            console.log(err);
+            return;
+        }
+        if(body) {
+            var queue = body;
+            fs.writeFileSync(root + '/playlists/' + argv.w + '.json', queue)
+            console.log('playlist written into ' + argv.w + '.json');
+        }
     });
 } else {
     request.get({
