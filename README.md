@@ -1,5 +1,5 @@
-# partyplay-client
-simple CLI client for partyplay
+# nodeplayer-client
+simple CLI client for nodeplayer
 
 usage
 -----
@@ -16,7 +16,7 @@ usage
 playlists
 ---------
 
-Playlists are `.json` files placed into `~/.partyplay-client/playlists/`. The
+Playlists are `.json` files placed into `~/.nodeplayer-client/playlists/`. The
 format looks like this:
 
 ```

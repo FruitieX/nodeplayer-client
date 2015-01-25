@@ -6,14 +6,14 @@ var fs = require('fs');
 var Duration = require('duration');
 
 var mkdirp = require('mkdirp');
-var root = process.env.HOME + '/.partyplay-client';
+var root = process.env.HOME + '/.nodeplayer-client';
 mkdirp.sync(root + '/temp');
 mkdirp.sync(root + '/playlists');
 
 var tempResultsPath = root + '/temp/searchresults.json';
 
-var userConfig = require(process.env.HOME + '/.partyplayConfig.js');
-var defaultConfig = require(__dirname + '/partyplayConfigDefaults.js');
+var userConfig = require(process.env.HOME + '/.nodeplayer-config.js');
+var defaultConfig = require('nodeplayer-defaults');
 var config = _.defaults(userConfig, defaultConfig);
 
 var tlsOpts = {
@@ -24,7 +24,7 @@ var tlsOpts = {
 };
 
 var usageText = '';
-usageText += 'show and manipulate the partyplay queue.\n\n';
+usageText += 'show and manipulate the nodeplayer queue.\n\n';
 usageText += 'commands\n';
 usageText += '========\n';
 usageText += 'search for songs:\n';
