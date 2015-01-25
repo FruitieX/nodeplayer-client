@@ -118,11 +118,13 @@ if (argv.h) {
     });
 } else if (!_.isUndefined(argv.d)) {
     var cnt = 1;
+    var range;
     var start = argv.d;
     if(argv.d === true)
         start = 0;
 
-    var range = parseRange(argv.d);
+    if(_.isString(argv.d))
+        range = parseRange(argv.d);
     if(range) {
         start = range[0];
         cnt = range[1] - range[0] + 1;
@@ -143,8 +145,11 @@ if (argv.h) {
     if(fs.existsSync(tempResultsPath)) {
         var tempResults = require(tempResultsPath);
         var matches = [];
+        var range;
 
-        var range = parseRange(argv.a);
+        if(_.isString(argv.a))
+            range = parseRange(argv.a);
+
         if(argv.a === true) {
             // entire playlist
             matches = tempResults;
