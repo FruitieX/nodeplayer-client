@@ -69,6 +69,8 @@ var parseRange = function(str) {
 
     range[0] = res[1] || 0;
     range[1] = res[2] || 9999999999999;
+
+    return range;
 };
 
 var url = config.hostname + ':' + config.port;
@@ -120,7 +122,7 @@ if (argv.h) {
     if(argv.d === true)
         start = 0;
 
-    var range = parseRange(argv.a);
+    var range = parseRange(argv.d);
     if(range) {
         start = range[0];
         cnt = range[1] - range[0] + 1;
@@ -131,8 +133,11 @@ if (argv.h) {
             cnt: cnt
         },
         agentOptions: tlsOpts
-    }, function(err, res, body) {
-        printSong(JSON.parse(body)[0]);
+    }, function(err, res, songs) {
+        console.log("deleted songs:");
+        _.each(songs, function(song) {
+            printSong(song);
+        });
     });
 } else if (!_.isUndefined(argv.a)) {
     if(fs.existsSync(tempResultsPath)) {
