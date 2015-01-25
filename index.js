@@ -17,9 +17,9 @@ var defaultConfig = require(__dirname + '/partyplayConfigDefaults.js');
 var config = _.defaults(userConfig, defaultConfig);
 
 var tlsOpts = {
-    key: config.tlsKey,
-    cert: config.tlsCert,
-    ca: config.tlsCa,
+    key: fs.readFileSync(config.tlsKey),
+    cert: fs.readFileSync(config.tlsCert),
+    ca: fs.readFileSync(config.tlsCa),
     rejectUnauthorized: config.rejectUnauthorized
 };
 
