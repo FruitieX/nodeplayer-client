@@ -39,6 +39,7 @@ usageText += '  -g [CNT]      skip CNT songs, can be negative to go back\n';
 usageText += 'misc:\n';
 usageText += '  -n            show now playing song\n';
 usageText += '  -w [FILENAME] write current playlist into FILENAME\n';
+usageText += '  -r [ID]       recalculate HMAC in playlist with ID\n';
 usageText += '  -h            show this help and quit\n';
 
 var yargs = require('yargs')
@@ -297,6 +298,59 @@ if (argv.h) {
             console.log('playlist written into ' + argv.w + '.json');
         }
     });
+} else if(argv.r) {
+    var crypto = require('crypto');
+    var key = fs.readFileSync(config.verifyMac.key);
+    var derivedKey = crypto.pbkdf2Sync(key, key, config.verifyMac.iterations, config.verifyMac.keyLen);
+
+    var calculateMac = function(str) {
+        var hmac = crypto.createHmac(config.verifyMac.algorithm, derivedKey);
+        hmac.update(str);
+        return hmac.digest('hex');
+    };
+    var getSongHmac = function(song) {
+        song.album = (song.album || "");
+        song.artist = (song.artist || "");
+        song.title = (song.title || "");
+
+        return calculateMac(
+            song.album.replace('|', '')                  + '|' +
+            song.artist.replace('|', '')                 + '|' +
+            song.title.replace('|', '')                  + '|' +
+            song.backendName.replace('|', '')            + '|' +
+            song.duration.toString().replace('|', '')    + '|' +
+            song.format.replace('|', '')                 + '|' +
+            song.songID.replace('|', '')                 + '|'
+        );
+    };
+
+    var playlists = fs.readdirSync(root + '/playlists');
+    playlists.sort();
+
+    // loop over playlists to find the requested one
+    var playlist;
+    var playlistPath;
+    var id = 0;
+    _.each(playlists, function(playlistName) {
+        if(id === argv.r) {
+            playlist = require(root + '/playlists/' + playlistName);
+            playlistPath = root + '/playlists/' + playlistName;
+        }
+        id++;
+    });
+    if(!playlist) {
+        console.log('no playlist found');
+        return;
+    }
+
+    // loop over songs and fix hmac
+    for(var song in playlist) {
+        playlist[song].hmac = getSongHmac(playlist[song]);
+    }
+
+    // store playlist
+    fs.writeFileSync(playlistPath, JSON.stringify(playlist));
+    console.log('wrote playlist with recalculated HMACs: ' + playlistPath);
 } else {
     request.get({
         url: url + '/queue',
@@ -318,3 +372,5 @@ if (argv.h) {
         }
     });
 }
+
+// TODO: replace a lot of _.each() with _.find() or similar to prevent unnecessary loops
