@@ -41,6 +41,7 @@ usageText += 'misc:\n';
 usageText += '  -n            show now playing song\n';
 usageText += '  -w [FILENAME] write current playlist into FILENAME\n';
 usageText += '  -r [ID]       recalculate HMAC in playlist with ID\n';
+usageText += '  -i [ID]       insert now playing into playlist with ID\n';
 usageText += '  -h            show this help and quit\n';
 
 var yargs = require('yargs')
@@ -297,6 +298,38 @@ if (argv.h) {
             var queue = body;
             fs.writeFileSync(root + '/playlists/' + argv.w + '.json', queue)
             console.log('playlist written into ' + argv.w + '.json');
+        }
+    });
+} else if(!_.isUndefined(argv.i)) {
+    request.get({
+        url: url + '/queue',
+        agentOptions: tlsOpts
+    }, function(err, res, body) {
+        if(err) {
+            console.log(err);
+            return;
+        }
+        if(body) {
+            var queue = JSON.parse(body);
+            var song = queue.shift();
+
+            var playlists = fs.readdirSync(root + '/playlists');
+
+            // loop over playlists to find the requested one
+            var playlist;
+            var playlistPath;
+            var id = 0;
+            _.each(playlists, function(playlistName) {
+                if(id === argv.i) {
+                    playlistPath = root + '/playlists/' + playlistName;
+                    playlist = require(playlistPath);
+                }
+                id++;
+            });
+
+            playlist.unshift(song);
+            // store song list
+            fs.writeFileSync(playlistPath, JSON.stringify(playlist));
         }
     });
 } else if(argv.r) {
