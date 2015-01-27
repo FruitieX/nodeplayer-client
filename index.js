@@ -38,6 +38,7 @@ usageText += '  -d [ID]       delete song with ID\n';
 usageText += '  -g [CNT]      skip CNT songs, can be negative to go back\n';
 usageText += '  -k [POS]      seek playback to POS seconds, left out to resume\n';
 usageText += '  -u            pause playback\n';
+usageText += '  -z            shuffle queue\n';
 usageText += 'misc:\n';
 usageText += '  -n            show now playing song\n';
 usageText += '  -w [FILENAME] write current playlist into FILENAME\n';
@@ -411,6 +412,16 @@ if (argv.h) {
     // store playlist
     fs.writeFileSync(playlistPath, JSON.stringify(playlist));
     console.log('wrote playlist with recalculated HMACs: ' + playlistPath);
+} else if(argv.z) {
+    request.post({
+        url: url + '/playctl',
+        json: {
+            action: 'shuffle'
+        },
+        agentOptions: tlsOpts
+    }, function(err, res, body) {
+        console.log(body);
+    });
 } else {
     request.get({
         url: url + '/queue',
