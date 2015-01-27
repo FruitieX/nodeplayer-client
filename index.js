@@ -36,6 +36,8 @@ usageText += 'manipulate playback/queue:\n';
 usageText += '  -a [ID]       append song with ID\n';
 usageText += '  -d [ID]       delete song with ID\n';
 usageText += '  -g [CNT]      skip CNT songs, can be negative to go back\n';
+usageText += '  -k [POS]      seek playback to POS seconds, left out to resume\n';
+usageText += '  -u            pause playback\n';
 usageText += 'misc:\n';
 usageText += '  -n            show now playing song\n';
 usageText += '  -w [FILENAME] write current playlist into FILENAME\n';
@@ -330,6 +332,31 @@ if (argv.h) {
             // store song list
             fs.writeFileSync(playlistPath, JSON.stringify(playlist));
         }
+    });
+} else if(argv.u) {
+    request.post({
+        url: url + '/playctl',
+        json: {
+            action: 'pause'
+        },
+        agentOptions: tlsOpts
+    }, function(err, res, body) {
+        console.log(body);
+    });
+} else if(argv.k) {
+    var pos;
+    if(argv.k !== true)
+        pos = argv.k * 1000;
+
+    request.post({
+        url: url + '/playctl',
+        json: {
+            action: 'play',
+            position: pos
+        },
+        agentOptions: tlsOpts
+    }, function(err, res, body) {
+        console.log(body);
     });
 } else if(argv.r) {
     var crypto = require('crypto');
