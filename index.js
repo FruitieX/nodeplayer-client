@@ -171,7 +171,10 @@ if (argv.h) {
 
         request.post({
             url: url + '/queue',
-            json: {songs: matches},
+            json: {
+                songs: matches,
+                userID: 'nodeplayer-client'
+            },
             agentOptions: tlsOpts
         }, function(err, res, body) {
             if(!err) {
