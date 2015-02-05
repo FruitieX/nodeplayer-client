@@ -347,7 +347,7 @@ if (argv.h) {
     }, function(err, res, body) {
         console.log(body);
     });
-} else if(argv.k) {
+} else if(!_.isUndefined(argv.k)) {
     var pos;
     if(argv.k !== true)
         pos = argv.k * 1000;
