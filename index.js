@@ -173,6 +173,7 @@ if (argv.h) {
             url: url + '/queue',
             json: {
                 songs: matches,
+                pos: argv._[0],
                 userID: 'nodeplayer-client'
             },
             agentOptions: tlsOpts
