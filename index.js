@@ -33,17 +33,17 @@ usageText += '  -p            list playlists\n';
 usageText += '  -p [ID]       list contents of playlist ID\n';
 usageText += '  -s [QUERY]    perform search matching QUERY\n';
 usageText += 'manipulate playback/queue:\n';
-usageText += '  -a [ID]       append song with ID\n';
-usageText += '  -d [ID]       delete song with ID\n';
+usageText += '  -a ID [POS]   append song with ID\n';
+usageText += '  -d ID         delete song with ID\n';
 usageText += '  -g [CNT]      skip CNT songs, can be negative to go back\n';
 usageText += '  -k [POS]      seek playback to POS seconds, left out to resume\n';
 usageText += '  -u            pause playback\n';
 usageText += '  -z            shuffle queue\n';
 usageText += 'misc:\n';
 usageText += '  -n            show now playing song\n';
-usageText += '  -w [FILENAME] write current playlist into FILENAME\n';
-usageText += '  -r [ID]       recalculate HMAC in playlist with ID\n';
-usageText += '  -i [ID]       insert now playing into playlist with ID\n';
+usageText += '  -w FILENAME   write current playlist into FILENAME\n';
+usageText += '  -r ID         recalculate HMAC in playlist with ID\n';
+usageText += '  -i ID         insert now playing into playlist with ID\n';
 usageText += '  -h            show this help and quit\n';
 
 var yargs = require('yargs')
@@ -173,6 +173,7 @@ if (argv.h) {
             url: url + '/queue',
             json: {
                 songs: matches,
+                pos: argv._[0],
                 userID: 'nodeplayer-client'
             },
             agentOptions: tlsOpts
@@ -244,7 +245,7 @@ if (argv.h) {
         process.stdout.write('\r');
         process.stdout.write('\033[2K');
 
-        if(!_.isEmpty(playbackInfo)) {
+        if(!_.isEmpty(playbackInfo) && playbackInfo.playbackStart) {
             var curTime = new Date().getTime();
             var position = new Duration(new Date(playbackInfoTime), new Date(curTime + (playbackInfo.position || 0)));
             var duration = new Duration(new Date(curTime), new Date(curTime + parseInt(playbackInfo.duration)));
@@ -347,7 +348,7 @@ if (argv.h) {
     }, function(err, res, body) {
         console.log(body);
     });
-} else if(argv.k) {
+} else if(!_.isUndefined(argv.k)) {
     var pos;
     if(argv.k !== true)
         pos = argv.k * 1000;
