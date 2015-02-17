@@ -102,7 +102,7 @@ if (argv.h) {
                 });
             });
 
-            fs.writeFileSync(tempResultsPath, JSON.stringify(results));
+            fs.writeFileSync(tempResultsPath, JSON.stringify(results, undefined, 4));
         } else {
             console.log('error: ' + err);
         }
@@ -228,7 +228,7 @@ if (argv.h) {
         });
 
         // store song list
-        fs.writeFileSync(tempResultsPath, JSON.stringify(playlist));
+        fs.writeFileSync(tempResultsPath, JSON.stringify(playlist, undefined, 4));
     }
 } else if(argv.n) {
     var socket = require('socket.io-client')(config.hostname + ':' + config.port, tlsOpts);
@@ -339,7 +339,7 @@ if (argv.h) {
 
             playlist.unshift(song);
             // store song list
-            fs.writeFileSync(playlistPath, JSON.stringify(playlist));
+            fs.writeFileSync(playlistPath, JSON.stringify(playlist, undefined, 4));
         }
     });
 } else if(argv.u) {
@@ -418,7 +418,7 @@ if (argv.h) {
     }
 
     // store playlist
-    fs.writeFileSync(playlistPath, JSON.stringify(playlist));
+    fs.writeFileSync(playlistPath, JSON.stringify(playlist, undefined, 4));
     console.log('wrote playlist with recalculated HMACs: ' + playlistPath);
 } else if(argv.z) {
     request.post({
