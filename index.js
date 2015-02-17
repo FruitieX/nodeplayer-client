@@ -79,7 +79,7 @@ var parseRange = function(str) {
     return range;
 };
 
-var url = config.hostname + ':' + config.port;
+var url = (config.tls ? 'https://' : 'http://') + config.hostname + ':' + config.port;
 
 if (argv.h) {
     console.log(usageText);
@@ -231,7 +231,7 @@ if (argv.h) {
         fs.writeFileSync(tempResultsPath, JSON.stringify(playlist, undefined, 4));
     }
 } else if(argv.n) {
-    var socket = require('socket.io-client')(config.hostname + ':' + config.port, tlsOpts);
+    var socket = require('socket.io-client')((config.tls ? 'https://' : 'http://') + config.hostname + ':' + config.port, tlsOpts);
     var zpad = require('zpad');
     var npInterval = null;
     var playbackInfo = {};
