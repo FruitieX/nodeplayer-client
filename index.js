@@ -169,12 +169,16 @@ if (argv.h) {
             matches = [tempResults[argv.a]];
         }
 
+        // TODO: check if host is running partyplay before doing this?
+        for(var i = 0; i < matches.length; i++) {
+            matches[i].userID = 'nodeplayer-client';
+        }
+
         request.post({
             url: url + '/queue',
             json: {
                 songs: matches,
-                pos: argv._[0],
-                userID: 'nodeplayer-client'
+                pos: argv._[0]
             },
             agentOptions: tlsOpts
         }, function(err, res, body) {
