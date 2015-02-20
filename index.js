@@ -12,9 +12,7 @@ mkdirp.sync(root + '/playlists');
 
 var tempResultsPath = root + '/temp/searchresults.json';
 
-var userConfig = require(process.env.HOME + '/.nodeplayer-config.js');
-var defaultConfig = require('nodeplayer-defaults');
-var config = _.defaults(userConfig, defaultConfig);
+var config = require('nodeplayer-defaults')(console);
 
 var tlsOpts = {
     key: fs.readFileSync(config.tlsKey),
