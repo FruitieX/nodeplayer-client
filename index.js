@@ -304,7 +304,8 @@ if (argv.h) {
         }
         if(body) {
             var queue = body;
-            fs.writeFileSync(root + '/playlists/' + argv.w + '.json', queue)
+            // TODO: filter out unneeded song properties
+            fs.writeFileSync(root + '/playlists/' + argv.w + '.json', JSON.stringify(queue, undefined, 4));
             console.log('playlist written into ' + argv.w + '.json');
         }
     });
@@ -337,6 +338,7 @@ if (argv.h) {
 
             playlist.unshift(song);
             // store song list
+            // TODO: filter out unneeded song properties
             fs.writeFileSync(playlistPath, JSON.stringify(playlist, undefined, 4));
         }
     });
