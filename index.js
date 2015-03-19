@@ -12,12 +12,15 @@ mkdirp.sync(root + '/playlists');
 
 var tempResultsPath = root + '/temp/searchresults.json';
 
-var config = require('nodeplayer-defaults')(console);
+var nodeplayerConfig = require('nodeplayer-config');
+var coreConfig = nodeplayerConfig.getConfig();
+var defaultConfig = require('./default-config.js');
+var config = require('nodeplayer-config').getConfig('client', defaultConfig);
 
 var tlsOpts = {
-    key: fs.readFileSync(config.tlsKey),
-    cert: fs.readFileSync(config.tlsCert),
-    ca: fs.readFileSync(config.tlsCa),
+    key: fs.readFileSync(config.key),
+    cert: fs.readFileSync(config.cert),
+    ca: fs.readFileSync(config.ca),
     rejectUnauthorized: config.rejectUnauthorized
 };
 
