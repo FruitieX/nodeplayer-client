@@ -370,7 +370,7 @@ if (argv.h) {
     }, function(err, res, body) {
         console.log(body);
     });
-} else if(argv.r) {
+} else if(!_.isUndefined(argv.r)) {
     var crypto = require('crypto');
     var key = fs.readFileSync(config.verifyMac.key);
     var derivedKey = crypto.pbkdf2Sync(key, key, config.verifyMac.iterations, config.verifyMac.keyLen);
