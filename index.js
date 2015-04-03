@@ -29,23 +29,24 @@ usageText += 'show and manipulate the nodeplayer queue.\n\n';
 usageText += 'commands\n';
 usageText += '========\n';
 usageText += 'search for songs:\n';
-usageText += '  -l            show queue (default action)\n';
-usageText += '  -p            list playlists\n';
-usageText += '  -p [ID]       list contents of playlist ID\n';
-usageText += '  -s [QUERY]    perform search matching QUERY\n';
+usageText += '  -l                  show queue (default action)\n';
+usageText += '  -p                  list playlists\n';
+usageText += '  -p [ID]             list contents of playlist ID\n';
+usageText += '  -s [QUERY]          perform search matching QUERY\n';
 usageText += 'manipulate playback/queue:\n';
-usageText += '  -a ID [POS]   append song with ID\n';
-usageText += '  -d ID         delete song with ID\n';
-usageText += '  -g [CNT]      skip CNT songs, can be negative to go back\n';
-usageText += '  -k [POS]      seek playback to POS seconds, left out to resume\n';
-usageText += '  -u            pause playback\n';
-usageText += '  -z            shuffle queue\n';
+usageText += '  -a ID [POS]         append song with ID\n';
+usageText += '  -d ID               delete song with ID\n';
+usageText += '  -m FROM TO [CNT]    move CNT songs FROM pos TO pos\n';
+usageText += '  -g [CNT]            skip CNT songs, can be negative to go back\n';
+usageText += '  -k [POS]            seek playback to POS seconds, left out to resume\n';
+usageText += '  -u                  pause playback\n';
+usageText += '  -z                  shuffle queue\n';
 usageText += 'misc:\n';
-usageText += '  -n            show now playing song\n';
-usageText += '  -w FILENAME   write current playlist into FILENAME\n';
-usageText += '  -r ID         recalculate HMAC in playlist with ID\n';
-usageText += '  -i ID         insert now playing into playlist with ID\n';
-usageText += '  -h            show this help and quit\n';
+usageText += '  -n                  show now playing song\n';
+usageText += '  -w FILENAME         write current playlist into FILENAME\n';
+usageText += '  -r ID               recalculate HMAC in playlist with ID\n';
+usageText += '  -i ID               insert now playing into playlist with ID\n';
+usageText += '  -h                  show this help and quit\n';
 
 var yargs = require('yargs')
     .boolean('s');
@@ -147,6 +148,26 @@ if (argv.h) {
         _.each(songs, function(song) {
             printSong(song);
         });
+    });
+} else if (!_.isUndefined(argv.m)) {
+    request.post({
+        url: url + '/queue',
+        json: {
+            method: 'move',
+            from: argv.m,
+            to: argv._[0],
+            cnt: argv._[1]
+        },
+        agentOptions: tlsOpts
+    }, function(err, res, body) {
+        if(!err) {
+            console.log('songs moved:');
+            _.each(body, function(song) {
+                printSong(song);
+            });
+        } else {
+            console.log('error: ' + err);
+        }
     });
 } else if (!_.isUndefined(argv.a)) {
     if(fs.existsSync(tempResultsPath)) {
