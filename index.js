@@ -138,7 +138,7 @@ if (argv.h) {
         cnt = range[1] - range[0] + 1;
     }
     request.del({
-        url: url + '/queue/' + start,
+        url: url + '/queue/del/' + start,
         json: {
             cnt: cnt
         },
@@ -151,10 +151,8 @@ if (argv.h) {
     });
 } else if (!_.isUndefined(argv.m)) {
     request.post({
-        url: url + '/queue',
+        url: url + '/queue/move/' + argv.m,
         json: {
-            method: 'move',
-            from: argv.m,
             to: argv._[0],
             cnt: argv._[1]
         },
@@ -197,7 +195,7 @@ if (argv.h) {
         }
 
         request.post({
-            url: url + '/queue',
+            url: url + '/queue/add',
             json: {
                 songs: matches,
                 pos: argv._[0]
