@@ -1,6 +1,6 @@
 {
   "name": "nodeplayer-client",
-  "version": "0.0.1",
+  "version": "0.1.9",
   "description": "simple CLI client for nodeplayer",
   "main": "index.js",
   "scripts": {
