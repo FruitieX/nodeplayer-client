@@ -13,9 +13,12 @@ defaultConfig.ca = nodeplayerConfig.getBaseDir() + path.sep + 'nodeplayer-ca.pem
 defaultConfig.rejectUnauthorized = true;
 
 defaultConfig.verifyMac = {};
-defaultConfig.verifyMac.algorithm = "sha256";
+defaultConfig.verifyMac.algorithm = 'sha256';
 defaultConfig.verifyMac.key = nodeplayerConfig.getBaseDir() + path.sep + 'nodeplayer-key.pem';
 defaultConfig.verifyMac.iterations = 1000;
 defaultConfig.verifyMac.keyLen = 256;
+
+defaultConfig.username = 'changeMe';
+defaultConfig.password = 'keyboard cat';
 
 module.exports = defaultConfig;

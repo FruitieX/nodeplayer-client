@@ -2,6 +2,7 @@
 
 var _ = require('underscore');
 var request = require('request');
+var FileCookieStore = require('tough-cookie-filestore');
 var fs = require('fs');
 var Duration = require('duration');
 
@@ -16,6 +17,12 @@ var nodeplayerConfig = require('nodeplayer-config');
 var coreConfig = nodeplayerConfig.getConfig();
 var defaultConfig = require('./default-config.js');
 var config = require('nodeplayer-config').getConfig('client', defaultConfig);
+
+// enable cookies
+fs.openSync(nodeplayerConfig.getConfigDir() + '/client-cookies.json', 'a');
+var j = request.jar(new FileCookieStore(
+            nodeplayerConfig.getConfigDir() + '/client-cookies.json'));
+request = request.defaults({jar: j});
 
 var tlsOpts = {
     key: fs.readFileSync(config.key),
@@ -46,6 +53,7 @@ usageText += '  -n                  show now playing song\n';
 usageText += '  -w FILENAME         write current playlist into FILENAME\n';
 usageText += '  -r ID               recalculate HMAC in playlist with ID\n';
 usageText += '  -i ID               insert now playing into playlist with ID\n';
+usageText += '  -t                  authenticate to passport\n';
 usageText += '  -h                  show this help and quit\n';
 
 var yargs = require('yargs')
@@ -85,6 +93,21 @@ var url = (config.tls ? 'https://' : 'http://') + config.hostname + ':' + config
 
 if (argv.h) {
     console.log(usageText);
+} else if (argv.t) {
+    request.post({
+        url: url + '/login',
+        json: {
+            username: config.username,
+            password: config.password
+        },
+        agentOptions: tlsOpts
+    }, function(err, res, body) {
+        if(!err) {
+            console.log('success: ' + body);
+        } else {
+            console.log('error: ' + err);
+        }
+    });
 } else if (argv.s) {
     request.post({
         url: url + '/search',
