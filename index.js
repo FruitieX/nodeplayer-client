@@ -25,9 +25,9 @@ var j = request.jar(new FileCookieStore(
 request = request.defaults({jar: j});
 
 var tlsOpts = {
-    key: fs.readFileSync(config.key),
-    cert: fs.readFileSync(config.cert),
-    ca: fs.readFileSync(config.ca),
+    key: config.key ? fs.readFileSync(config.key) : undefined,
+    cert: config.cert ? fs.readFileSync(config.cert) : undefined,
+    ca: config.ca ? fs.readFileSync(config.ca) : undefined,
     rejectUnauthorized: config.rejectUnauthorized
 };
 
