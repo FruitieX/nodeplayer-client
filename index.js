@@ -25,9 +25,9 @@ var j = request.jar(new FileCookieStore(
 request = request.defaults({jar: j});
 
 var tlsOpts = {
-    key: config.key ? fs.readFileSync(config.key) : undefined,
-    cert: config.cert ? fs.readFileSync(config.cert) : undefined,
-    ca: config.ca ? fs.readFileSync(config.ca) : undefined,
+    key: (config.tls && config.key) ? fs.readFileSync(config.key) : undefined,
+    cert: (config.tls && config.cert) ? fs.readFileSync(config.cert) : undefined,
+    ca: (config.tls && config.ca) ? fs.readFileSync(config.ca) : undefined,
     rejectUnauthorized: config.rejectUnauthorized
 };
 
@@ -109,9 +109,13 @@ if (argv.h) {
         }
     });
 } else if (argv.s) {
-    request.post({
+    request.get({
         url: url + '/search',
-        json: {terms: argv._.join(' ')},
+        json: {
+            'query': {
+                'any': argv._.join(' ')
+            }
+        },
         agentOptions: tlsOpts
     }, function(err, res, body) {
         if(!err) {
@@ -218,11 +222,8 @@ if (argv.h) {
         }
 
         request.post({
-            url: url + '/queue/add',
-            json: {
-                songs: matches,
-                pos: argv._[0]
-            },
+            url: url + '/queue/song',
+            json: matches,
             agentOptions: tlsOpts
         }, function(err, res, body) {
             if(!err) {
@@ -486,7 +487,7 @@ if (argv.h) {
         }
         console.log('Queue:');
         if(body) {
-            var queue = JSON.parse(body);
+            var queue = JSON.parse(body).songs;
             queue.reverse();
             var id = queue.length - 1;
             _.each(queue, function(song) {
